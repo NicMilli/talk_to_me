@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import UserButton from '@/src/components/UserButton'
+import UserButton from '@/components/UserButton'
 import { auth } from '@clerk/nextjs'
 
 export default async function Home() {
