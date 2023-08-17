@@ -1,4 +1,4 @@
-import { UserButton } from '@clerk/nextjs'
+import UserButton from '@/components/UserButton'
 import Image from 'next/image'
 import FullLogo from '../FullLogo.png'
 import { ReactNode } from 'react'

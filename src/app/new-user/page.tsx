@@ -19,6 +19,8 @@ const createNewUser = async () => {
       },
     })
     redirect('/home')
+  } else {
+    redirect('/home')
   }
 }
 
