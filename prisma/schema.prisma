@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+  relationMode = "prisma"
+}
+
+model Feedback {
+  id        String    @default(cuid()) @id
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  title     String
+  content   String?   @db.Text
+  script    Script    @relation(fields: [scriptId], references: [id])
+  scriptId  String
+  @@index([scriptId])
+}
+
+model Script {
+  id        String    @default(cuid()) @id
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  title     String
+  content   String?   @db.Text
+  author    User      @relation(fields: [authorId], references: [id])
+  audience  String?
+  authorId  String
+  analyses  Feedback[]
+  @@index([authorId])
+}
+
+model ReadMe {
+  id        String    @default(cuid()) @id
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  title     String
+  content   String?   @db.Text
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  @@index([authorId])
+}
+
+model User {
+  id         String    @default(cuid()) @id
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  clerkId    String    @unique
+  email      String
+  scripts    Script[]
+  readmes    ReadMe[]
+  @@map(name: "users")
+}
+
+model Icon {
+  id         String    @default(cuid()) @id
+  createdAt  DateTime  @default(now()) @map(name: "created_at")
+  updatedAt  DateTime  @updatedAt @map(name: "updated_at")
+  url        String
+}
