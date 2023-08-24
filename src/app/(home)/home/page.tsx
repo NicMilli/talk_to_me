@@ -1,27 +1,38 @@
+import NewScriptButton from '@/components/NewScriptButton'
+import ScriptCard from '@/components/ScriptCard'
 import { getDBUser } from '@/utils/auth'
 import { prisma } from '@/utils/db'
 
-const getStats = async () => {
+const getScripts = async () => {
   const user = await getDBUser()
 
-  const stats = await prisma.feedback.findMany({
+  const scripts = await prisma.script.findMany({
     where: {
-      userId: user.id,
+      authorId: user.id,
+    },
+    include: {
+      analyses: true,
     },
     orderBy: {
       updatedAt: 'desc',
     },
   })
 
-  return stats
+  return scripts
 }
 
 const Home = async () => {
-  const stats = await getStats()
+  const scripts = await getScripts()
+  console.log(scripts)
   return (
-    <div>
-      Home
-      <div>{'stats' + stats[0]}</div>
+    <div className="p-10 h-full bg-zinc-400/10">
+      <NewScriptButton />
+      <h2 className="text-3xl mb-8">Previous speeches:</h2>
+      <div className="grid grid-cols-3 gap-4">
+        {scripts.map((script) => (
+          <ScriptCard key={script.id} script={script} />
+        ))}
+      </div>
     </div>
   )
 }

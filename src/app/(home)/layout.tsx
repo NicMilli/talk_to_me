@@ -35,7 +35,7 @@ const NavbarLayout = ({ children }: Props) => {
           </div>
         </nav>
       </header>
-      <div>{children}</div>
+      <div className="h-[calc(100vh-60px)]">{children}</div>
     </div>
   )
 }

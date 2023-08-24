@@ -1,5 +1,11 @@
-const page = () => {
-  return <div></div>
+import NewScript from '@/components/NewScriptButton'
+
+const TalkToMe = () => {
+  return (
+    <div className="grid grid-cols-3 gap-4">
+      <NewScript />
+    </div>
+  )
 }
 
-export default page
+export default TalkToMe
