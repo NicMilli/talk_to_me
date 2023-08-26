@@ -14,11 +14,11 @@ const NewScriptButton = () => {
 
   return (
     <div
-      className="cursor-pointer overflow-hidden rounded-lg bg-white shadow"
+      className="cursor-pointer overflow-hidden rounded-lg bg-white shadow-white shadow-sm"
       onClick={handleOnClick}
     >
       <div className="px-4 py-5 sm:p-6">
-        <span className="text-3xl">New Entry</span>
+        <span className="text-3xl text-gray-950">New Entry</span>
       </div>
     </div>
   )

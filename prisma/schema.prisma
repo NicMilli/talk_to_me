@@ -31,7 +31,7 @@ model Script {
   audience  String?
   authorId  String
   analyses  Feedback[]
-  @@index([authorId])
+  @@unique([authorId, id])
 }
 
 model ReadMe {
