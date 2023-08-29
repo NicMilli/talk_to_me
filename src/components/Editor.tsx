@@ -2,29 +2,23 @@
 
 import { useState, useId, useEffect } from 'react'
 import { FaMicrophone as Microphone, FaRobot as Robot } from 'react-icons/fa'
-import ws from 'ws'
 import { toast } from 'react-toastify'
 import ToastProvider from './toast.provider'
 
-//if (typeof window !== 'undefined') {
-const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition
-const mic = new SpeechRecognition()
-mic.continous = true
-mic.interimResults = true
-mic.lang = 'en-US'
-mic.continuous = true
-//}
-
 const Editor = ({
-  script,
+  Content = '',
+  Title = '',
+  Audience = '',
 }: {
-  script: { content: string; title: string; audience: string | null }
+  Content?: string | null
+  Title?: string | null
+  Audience?: string | null
 }) => {
-  const [content, setContent] = useState(script.content)
-  const [title, setTitle] = useState(script.title)
-  const [audience, setAudience] = useState(script.audience)
+  const [content, setContent] = useState(Content)
+  const [title, setTitle] = useState(Title)
+  const [audience, setAudience] = useState(Audience)
   const [isRecording, setIsRecording] = useState(false)
+  const [audioEnabled, setAudioEnabled] = useState(false)
   let originalContent = ''
   const [isConnected, setIsConnected] = useState(false)
   let socket
@@ -32,6 +26,44 @@ const Editor = ({
   const contentId = useId()
   const titleId = useId()
   const audienceId = useId()
+
+  const getAudioPermission = () => {
+    navigator.getUserMedia(
+      {
+        video: false,
+        audio: true,
+      },
+      // successCallback
+      function (localMediaStream) {
+        setAudioEnabled(true)
+      },
+
+      // errorCallback
+      function (err) {
+        setAudioEnabled(false)
+        console.log(typeof err.DOMException)
+        if (err.DOMException === 'Permission denied') {
+          toast.error(
+            'Speech dictation requires access to your microphone, please click the information icon in the address bar and allow access to your microphone to use this feature.'
+          )
+        }
+      }
+    )
+
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition
+      const mic = new SpeechRecognition()
+      mic.continous = true
+      mic.interimResults = true
+      mic.lang = 'en-US'
+      mic.continuous = true
+    }
+  }
+
+  useEffect(() => {
+    getAudioPermission()
+  }, [])
 
   async function connectToServer() {
     const ws = new WebSocket('ws://localhost:7071/ws')
@@ -160,6 +192,7 @@ const Editor = ({
               type="button"
               onClick={record}
               className="rounded-lg p-1 bg-orange-200 text-gray-900 text-xl font-bold flex items-center justify-center"
+              disabled={!audioEnabled}
             >
               {isRecording ? 'Stop' : 'Transcribe'}
               <Microphone className={isRecording ? 'fill-red-500' : ''} />

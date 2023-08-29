@@ -3,9 +3,19 @@ import NewScriptButton from '@/components/NewScriptButton'
 import { getDBUser } from '@/utils/auth'
 import { prisma } from '@/utils/db'
 
-const getScript = async (id) => {
+interface Script {
+  id: string
+  createdAt: Date
+  updatedAt: Date
+  title: string
+  content: string | null
+  audience: string | null
+  authorId: string
+}
+
+const getScript = async (id: string): Promise<Script | null> => {
   const user = await getDBUser()
-  const script = await prisma.script.findUnique({
+  const script: Script | null = await prisma.script.findUnique({
     where: {
       authorId_id: {
         authorId: user.id,
@@ -19,9 +29,14 @@ const getScript = async (id) => {
 
 const TalkToMe = async ({ params }: { params: { id: string } }) => {
   const script = await getScript(params.id)
+  console.log(script)
   return (
     <div className=" h-full w-full">
-      <Editor script={script} />
+      <Editor
+        Content={script?.content}
+        Title={script?.title}
+        Audience={script?.audience}
+      />
     </div>
   )
 }
