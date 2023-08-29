@@ -6,7 +6,7 @@ import ws from 'ws'
 import { toast } from 'react-toastify'
 import ToastProvider from './toast.provider'
 
-//if (typeof window === 'undefined') {
+//if (typeof window !== 'undefined') {
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition
 const mic = new SpeechRecognition()
@@ -25,7 +25,7 @@ const Editor = ({
   const [title, setTitle] = useState(script.title)
   const [audience, setAudience] = useState(script.audience)
   const [isRecording, setIsRecording] = useState(false)
-  const [tempcontent, setTempContent] = useState('')
+  let originalContent = ''
   const [isConnected, setIsConnected] = useState(false)
   let socket
 
@@ -46,95 +46,38 @@ const Editor = ({
     })
   }
 
-  // async function record() {
-  //   if (isRecording) {
-  //     audio.stop()
-  //     setIsRecording(false)
-  //     const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' })
-  //     const audioUrl = URL.createObjectURL(audioBlob)
-  //     console.log(audioUrl)
-  //     let file = new File([audioUrl], 'recorded_audio.mp3', {
-  //       type: 'audio/mp3',
-  //       lastModified: new Date().getTime(),
-  //     })
-  //     let container = new DataTransfer()
-  //     container.items.add(file)
-  //     document.getElementById('audioFile').files = container.files
-  //     setAudioFile(container.files[0])
-
-  //     console.log(file)
-  //     return
-  //   }
-
-  //   setIsRecording(true)
-
-  //   try {
-  //     socket = await connectToServer()
-  //     console.log(socket)
-  //     socket.onmessage = (e) => {
-  //       console.log(e)
-  //       //setContent(e.data)
-  //     }
-  //   } catch (e) {
-  //     toast.error('Failed to connect to server')
-  //     return
-  //   }
-
-  //   try {
-  //     const stream = await navigator.mediaDevices.getUserMedia({
-  //       audio: true,
-  //       video: false,
-  //     })
-
-  //     const mediaRecorder = new MediaRecorder(stream)
-
-  //     mediaRecorder.ondataavailable = async (event) => {
-  //       setAudioChunks((prev) => [...prev, event.data])
-  //       socket.send(event.data)
-  //     }
-
-  //     mediaRecorder.start(100)
-
-  //     setAudio(mediaRecorder)
-  //   } catch (e) {
-  //     toast.error('Failed to get audio')
-  //     return
-  //   }
-  // }
-
   const touchup = async (e) => {
     socket = await connectToServer()
-    //     console.log(socket)
+    setContent((prev) => '')
     socket.send(JSON.stringify({ content, targetAudience: audience }))
     socket.onmessage = (e) => {
-      setContent(JSON.parse(e.data))
+      console.log(e)
+      setContent((prevContent) => prevContent + e.data)
     }
   }
 
   const record = async (e) => {
-    // if (!mic) {
-    //   toast.error('Failed to connect to microphone')
-    //   return
-    // }
-    setIsRecording((prevIsRecording) => !prevIsRecording)
+    //TODO: Handle permission denied/mic not available
 
-    if (!isRecording) {
-      mic.start()
-      mic.onend = (e) => {
-        console.log('continue..')
-        setTempContent('')
+    setIsRecording((prevIsRecording) => !prevIsRecording)
+    try {
+      if (!isRecording) {
+        mic.start()
+      } else {
+        mic.stop()
+        mic.onend = () => {
+          toast.error('Audio stopped')
+        }
       }
-    } else {
-      mic.stop()
-      mic.onend = () => {
-        setContent((prevContent) => prevContent + ' ' + tempcontent)
-        setTempContent('')
-        toast.error('Audio stopped')
-      }
+    } catch (error) {
+      console.log(error)
+      toast.error('Failed to connect to microphone')
+      return
     }
 
     mic.onstart = () => {
-      setTempContent('Start speaking...')
+      originalContent = content
+      setContent((prevContent) => prevContent + ' ' + 'Start speaking...')
       toast.success('Microphone is on')
     }
 
@@ -146,13 +89,16 @@ const Editor = ({
         .map((result) => result.transcript)
         .join('')
 
-      setTempContent(transcript)
+      const mergedContent = originalContent + ' ' + transcript
+
+      setContent(mergedContent)
       mic.onerror = (e) => {
         console.log(e.error)
       }
     }
   }
 
+  //TODO: HANDLE BACKSPACE IN TEXTAREA
   return (
     <ToastProvider>
       <div className="w-full h-full p-8">
@@ -167,7 +113,7 @@ const Editor = ({
             >
               Title
               <input
-                className="block p-2 w-full text-lg font-bold text-gray-900 bg-gray-50 rounded-lg border border-orange-300 outline-orange-400/80"
+                className="block p-2 w-full text-lg font-bold text-gray-300 rounded-lg border border-orange-300 outline-orange-400/80"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 name="title"
@@ -200,8 +146,8 @@ const Editor = ({
             >
               Content
               <textarea
-                className="w-full p-8 text-xl text-gray-800 rounded-xl outline-orange-500"
-                value={content + ' ' + tempcontent}
+                className="w-full p-8 text-xl text-gray-400 rounded-xl outline-orange-500"
+                value={content}
                 onChange={(e) => setContent(e.target.value)}
                 name="content"
                 id="content"
