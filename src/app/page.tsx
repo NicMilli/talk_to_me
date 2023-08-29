@@ -2,7 +2,7 @@ import Link from 'next/link'
 import UserButton from '@/components/UserButton'
 import { auth } from '@clerk/nextjs'
 
-export default async function Home() {
+export default async function Landing() {
   const { userId } = await auth()
 
   let href = userId ? '/home' : '/new-user'

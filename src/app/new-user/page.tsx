@@ -11,13 +11,15 @@ const createNewUser = async () => {
     },
   })
 
-  if (!match) {
+  if (!match && clerkUser?.emailAddresses[0].emailAddress) {
     const newUser = await prisma.user.create({
       data: {
-        clerkId: clerkUser.id,
+        clerkId: clerkUser?.id,
         email: clerkUser?.emailAddresses[0].emailAddress,
       },
     })
+    redirect('/home')
+  } else {
     redirect('/home')
   }
 }
