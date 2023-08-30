@@ -29,7 +29,7 @@ const getScript = async (id: string): Promise<Script | null> => {
 
 const TalkToMe = async ({ params }: { params: { id: string } }) => {
   const script = await getScript(params.id)
-  console.log(script)
+
   return (
     <div className=" h-full w-full">
       <Editor
