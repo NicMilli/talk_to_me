@@ -33,9 +33,10 @@ const TalkToMe = async ({ params }: { params: { id: string } }) => {
   return (
     <div className=" h-full w-full">
       <Editor
-        Content={script?.content}
-        Title={script?.title}
-        Audience={script?.audience}
+        Content={script?.content || ''}
+        Title={script?.title || ''}
+        Audience={script?.audience || ''}
+        id={params.id}
       />
     </div>
   )

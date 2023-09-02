@@ -14,3 +14,22 @@ export const createNewScript = async () => {
     return data.data
   }
 }
+
+export const updateScript = async (data: {
+  title?: string
+  audience?: string
+  content?: string
+  id: string
+}) => {
+  const res = await fetch(
+    new Request(createURL('/api/script'), {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  )
+
+  if (res.ok) {
+    const data = await res.json()
+    return data.data
+  }
+}

@@ -1,18 +1,26 @@
 'use client'
 
 import { useState, useId, useEffect } from 'react'
-import { FaMicrophone as Microphone, FaRobot as Robot } from 'react-icons/fa'
+import {
+  FaMicrophone as Microphone,
+  FaRobot as Robot,
+  FaCheck as Check,
+} from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import ToastProvider from './toast.provider'
+import { updateScript } from '@/utils/api'
+import router from 'next/router'
 
 const Editor = ({
   Content = '',
   Title = '',
   Audience = '',
+  id,
 }: {
-  Content?: string | null
-  Title?: string | null
-  Audience?: string | null
+  Content?: string
+  Title?: string
+  Audience?: string
+  id: string
 }) => {
   const [content, setContent] = useState(Content)
   const [title, setTitle] = useState(Title)
@@ -41,7 +49,7 @@ const Editor = ({
       // errorCallback
       function (err) {
         setAudioEnabled(false)
-        console.log(typeof err.DOMException)
+
         if (err.DOMException === 'Permission denied') {
           toast.error(
             'Speech dictation requires access to your microphone, please click the information icon in the address bar and allow access to your microphone to use this feature.'
@@ -82,9 +90,8 @@ const Editor = ({
     socket = await connectToServer()
     setContent((prev) => '')
     socket.send(JSON.stringify({ content, targetAudience: audience }))
-    socket.onmessage = (e) => {
-      console.log(e)
-      setContent((prevContent) => prevContent + e.data)
+    socket.onmessage = (res) => {
+      setContent((prevContent) => prevContent + res.data)
     }
   }
 
@@ -102,7 +109,6 @@ const Editor = ({
         }
       }
     } catch (error) {
-      console.log(error)
       toast.error('Failed to connect to microphone')
       return
     }
@@ -130,10 +136,16 @@ const Editor = ({
     }
   }
 
-  //TODO: HANDLE BACKSPACE IN TEXTAREA
+  const handleSubmit = async (e) => {
+    const update = updateScript({ title, content, audience, id })
+    if (update?.data) {
+      router.push('/home')
+    }
+  }
+
   return (
     <ToastProvider>
-      <div className="w-full h-full p-8">
+      <div className="min-w-full min-h-full p-8">
         <audio style={{ width: 400 }}>
           <p>Audio stream not available. </p>
         </audio>
@@ -183,11 +195,11 @@ const Editor = ({
                 onChange={(e) => setContent(e.target.value)}
                 name="content"
                 id="content"
-                rows="20"
+                rows="10"
               ></textarea>
             </label>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between mb-10">
             <button
               type="button"
               onClick={record}
@@ -204,6 +216,17 @@ const Editor = ({
             >
               AI Touchup
               <Robot className="fill-orange-600" />
+            </button>
+          </div>
+          <div className="flex justify-between">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              className="rounded-lg p-1 bg-orange-200 text-gray-900 text-xl font-bold flex items-center justify-center"
+              disabled={!audioEnabled}
+            >
+              Submit &nbsp;
+              <Check className="fill-green-800" />
             </button>
           </div>
         </div>
