@@ -33,3 +33,16 @@ export const updateScript = async (data: {
     return data.data
   }
 }
+
+export const fetchBadges = async () => {
+  const res = await fetch(
+    new Request(createURL('/api/badges'), {
+      method: 'GET',
+    })
+  )
+
+  if (res.ok) {
+    const data = await res.json()
+    return data.data
+  }
+}

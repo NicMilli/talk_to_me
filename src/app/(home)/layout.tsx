@@ -2,6 +2,7 @@ import UserButton from '@/components/UserButton'
 import Image from 'next/image'
 import FullLogo from '../FullLogo.png'
 import { ReactNode } from 'react'
+import Link from 'next/link'
 
 interface Props {
   children?: ReactNode
@@ -24,12 +25,18 @@ const NavbarLayout = ({ children }: Props) => {
             </div>
 
             <div className="flex justify-between w-[50%]">
-              <button className="bg-gradient-to-r from-amber-600 to-fuchsia-600 px-2 py-1 rounded-md text-l">
+              <Link
+                href="/home"
+                className="bg-gradient-to-r from-amber-600 to-fuchsia-600 px-2 py-1 rounded-md text-l"
+              >
                 TalkToMe
-              </button>
-              <button className="bg-gradient-to-r from-amber-600 to-fuchsia-600 px-2 py-1 rounded-md text-l">
+              </Link>
+              <Link
+                href="/WriteMe"
+                className="bg-gradient-to-r from-amber-600 to-fuchsia-600 px-2 py-1 rounded-md text-l"
+              >
                 WriteMe
-              </button>
+              </Link>
               <UserButton />
             </div>
           </div>

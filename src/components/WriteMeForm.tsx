@@ -12,6 +12,7 @@ const WriteMeForm = () => {
     repo: '',
     tech: true,
     technologiesFile: '',
+    badges: '',
     visuals: false,
     images: '',
     installation: true,
@@ -24,7 +25,9 @@ const WriteMeForm = () => {
   })
 
   async function connectToServer() {
-    const ws = new WebSocket('ws://localhost:7071/ws/writeme')
+    const ws = new WebSocket(
+      process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:7071/ws/writeme'
+    )
     return new Promise((resolve) => {
       const timer = setInterval(() => {
         if (ws.readyState === 1) {
@@ -92,11 +95,13 @@ const WriteMeForm = () => {
             e.preventDefault()
             handleSubmit()
           }}
+          className="flex flex-col justify-center gap-5 px-5"
         >
           <div>
             <label>
               Repository:
               <input
+                className="rounded-lg p-1 m-1"
                 type="text"
                 name="repo"
                 value={formData.repo}
@@ -106,10 +111,11 @@ const WriteMeForm = () => {
             </label>
           </div>
 
-          <div className="ckeck-box">
+          <div className="flex items-center">
             <label>
               Technology badges:
               <input
+                className="rounded-lg p-1 m-1"
                 type="checkbox"
                 name="tech"
                 checked={formData.tech}
@@ -134,6 +140,7 @@ const WriteMeForm = () => {
             <div>
               Image URLs (Comma separated list):
               <input
+                className="rounded-lg p-1 m-1"
                 type="text"
                 name="images"
                 value={formData.images}
@@ -170,6 +177,7 @@ const WriteMeForm = () => {
             <div>
               Optional:
               <input
+                className="rounded-lg p-1 m-1"
                 type="text"
                 name="functions"
                 value={formData.functions}
@@ -192,24 +200,44 @@ const WriteMeForm = () => {
             </label>
           </div>
 
-          <button type="submit">Generate ReadMe!</button>
-          <button type="button" onClick={handleReset}>
-            Reset fields
-          </button>
+          <div className="flex gap-5 justify-center">
+            <button
+              className="flex rounded-md m-2 py-1 px-2 items-center justify-center bg-gradient-to-r from-amber-600 to-fuchsia-600"
+              type="submit"
+            >
+              Generate ReadMe!
+            </button>
+            <button
+              className="flex rounded-md m-2 py-1 px-2 items-center justify-center bg-gradient-to-r from-amber-600 to-fuchsia-600"
+              type="button"
+              onClick={handleReset}
+            >
+              Reset fields
+            </button>
+          </div>
         </form>
       </main>
       <hr
         style={{
           color: 'black',
-          width: '50vw',
+          width: '100vw',
         }}
       />
-      <div className="">
-        <button type="button" aria-label="Copy" onClick={copyToClipboard}>
+      <div className="flex gap-5">
+        <button
+          className="flex rounded-md m-2 py-1 px-2 items-center justify-center bg-gradient-to-r from-amber-600 to-fuchsia-600"
+          type="button"
+          aria-label="Copy"
+          onClick={copyToClipboard}
+        >
           Copy &nbsp;
           <PaperClip />
         </button>
-        <button type="button" onClick={handleSubmit}>
+        <button
+          className="flex rounded-md m-2 py-1 px-2 items-center justify-center bg-gradient-to-r from-amber-600 to-fuchsia-600"
+          type="button"
+          onClick={handleSubmit}
+        >
           Retry
         </button>
         <ReactMarkdown>{readMe}</ReactMarkdown>
