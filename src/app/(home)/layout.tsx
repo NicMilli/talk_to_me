@@ -11,7 +11,7 @@ interface Props {
 
 const NavbarLayout = ({ children }: Props) => {
   return (
-    <div className="h-screen w-screen relative grid">
+    <div className="min-h-screen w-screen relative grid">
       <header className="h-[60px] border-b border-black/10">
         <nav>
           <div className="h-full w-full px-6 flex items-center justify-around">
@@ -42,7 +42,7 @@ const NavbarLayout = ({ children }: Props) => {
           </div>
         </nav>
       </header>
-      <div className="h-[calc(100vh-60px)] w-screen">{children}</div>
+      <div className="min-h-[calc(100vh-60px)] w-screen">{children}</div>
     </div>
   )
 }

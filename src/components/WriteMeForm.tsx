@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import ToastProvider from './toast.provider'
 import ReactMarkdown from 'react-markdown'
 import { FaPaperclip as PaperClip } from 'react-icons/fa'
+import { scrape } from '../utils/scrape'
 
 const WriteMeForm = () => {
   const [readMe, setReadMe] = useState('')
@@ -12,12 +13,12 @@ const WriteMeForm = () => {
     repo: '',
     tech: true,
     technologiesFile: '',
-    badges: '',
+    badges: [],
     visuals: false,
     images: '',
     installation: true,
     codeHighlights: false,
-    functions: '',
+    functions: [],
     usage: false,
     contributing: false,
     authors: true,
@@ -40,9 +41,11 @@ const WriteMeForm = () => {
 
   const handleSubmit = async () => {
     try {
+      const scrapedData = await scrape(formData.repo)
+      const formDataCopy = { ...formData, repo: JSON.stringify(scrapedData) }
       const socket = await connectToServer()
       setReadMe('')
-      socket.send(JSON.stringify(formData))
+      socket.send(JSON.stringify(formDataCopy))
       socket.onmessage = (res: { data: string }) => {
         setReadMe((prevReadMe) => prevReadMe + res.data)
       }
@@ -56,11 +59,12 @@ const WriteMeForm = () => {
       repo: '',
       tech: true,
       technologiesFile: '',
+      badges: [],
       visuals: false,
       images: '',
       installation: true,
       codeHighlights: false,
-      functions: '',
+      functions: [],
       usage: false,
       contributing: false,
       authors: true,
@@ -99,7 +103,7 @@ const WriteMeForm = () => {
         >
           <div>
             <label>
-              Repository:
+              Link to package.json or yarn.lock:
               <input
                 className="rounded-lg p-1 m-1"
                 type="text"
@@ -240,6 +244,8 @@ const WriteMeForm = () => {
         >
           Retry
         </button>
+      </div>
+      <div className="m-5">
         <ReactMarkdown>{readMe}</ReactMarkdown>
       </div>
     </ToastProvider>
